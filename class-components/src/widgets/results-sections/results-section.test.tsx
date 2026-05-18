@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ResultsSection from './results-section';
-import type { Person } from '../../../entities/person/model/interfaces/person.interface';
+import type { Person } from '../../entities/person/model/interfaces/person.interface';
 
 describe('ResultsSection', () => {
   const mockPerson: Person = {
@@ -13,6 +13,7 @@ describe('ResultsSection', () => {
     eye_color: 'blue',
     birth_year: '19BBY',
     gender: 'male',
+    url: 'https://swapi.dev/api/people/1/',
   };
 
   const defaultProps = {
@@ -25,6 +26,7 @@ describe('ResultsSection', () => {
     hasNextPage: true,
     hasPreviousPage: false,
     onPageChange: vi.fn(),
+    onSelect: vi.fn(),
   };
 
   it('should render without crashing with results', () => {
@@ -108,6 +110,7 @@ describe('ResultsSection', () => {
       eye_color: 'yellow',
       birth_year: '41.9BBY',
       gender: 'male',
+      url: 'https://swapi.dev/api/people/4/',
     };
 
     render(

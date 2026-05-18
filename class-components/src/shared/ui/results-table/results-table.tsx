@@ -13,7 +13,8 @@ function ResultsTable({
   if (!results.length) {
     return (
       <div className="results-table__empty">
-        <p>NO RECORDS FOUND</p>
+        <div className="results-table__empty-glyph">◈</div>
+        NO RECORDS FOUND
       </div>
     );
   }
@@ -25,7 +26,8 @@ function ResultsTable({
       <tr
         key={index}
         className={`results-table__row results-table__row--clickable${isActive ? ' results-table__row--active' : ''}`}
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           onSelect(person);
         }}
       >

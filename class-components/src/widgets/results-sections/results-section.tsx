@@ -1,8 +1,8 @@
 import type { JSX } from 'react';
-import type { ResultsSectionProps } from './interfaces/results-section.interface.ts';
-import Spinner from '../../../shared/ui/spinner/spinner.tsx';
-import Pagination from '../../../shared/ui/pagination/pagination.tsx';
-import ResultsTable from '../../../shared/ui/results-table/results-table.tsx';
+import type { ResultsSectionProps } from './model/interfaces/results-section.interface.ts';
+import Spinner from '../../shared/ui/spinner/spinner.tsx';
+import Pagination from '../../shared/ui/pagination/pagination.tsx';
+import ResultsTable from '../../shared/ui/results-table/results-table.tsx';
 import './results-section.scss';
 
 function ResultsSection({
@@ -63,7 +63,12 @@ function ResultsSection({
 
   return (
     <section className="results-section">
-      <div className="results__wrapper wrapper">
+      <div
+        className="results__wrapper wrapper"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         {renderContent()}
         {renderPagination()}
       </div>
