@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "preview": "vite preview",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
     "format:fix": "prettier --write .",
+    "check": "npm run lint && npm run format:fix",
     "prepare": "cd .. && husky class-components/.husky",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -17,7 +18,8 @@
   },
   "dependencies": {
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "react-router-dom": "^7.15.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
