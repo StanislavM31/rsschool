@@ -4,6 +4,7 @@ import { useParams, useNavigate, Outlet } from 'react-router-dom';
 import Header from '@/widgets/header/header.tsx';
 import SearchSection from '@/widgets/search-section/search-section.tsx';
 import ResultsSection from '@/widgets/results-sections/results-section.tsx';
+import SelectedItemsFlyout from '@/widgets/selected-items-flyout/selected-items-flyout.tsx';
 
 import { searchPeople } from '@/core/swapi/swapi-service.ts';
 
@@ -12,9 +13,9 @@ import type { Person } from '@/entities/person/model/interfaces/person.interface
 import { extractPersonId } from '@/shared/utilities/extract-person-id.ts';
 import { KEY_SEARCH_TERM } from '@/shared/constants/search-constants.ts';
 
-import './main-page.scss';
 import { ErrorButton } from '@shared/ui/buttons/error-button/error-button.tsx';
 
+import './main-page.scss';
 
 function MainPage(): JSX.Element {
   const { page, detailsId } = useParams();
@@ -31,7 +32,6 @@ function MainPage(): JSX.Element {
   const [activeTerm, setActiveTerm] = useState<string>(
     () => localStorage.getItem(KEY_SEARCH_TERM) ?? ''
   );
-
 
   const doSearch = async (term: string, targetPage: number): Promise<void> => {
     setIsLoading(true);
@@ -106,6 +106,7 @@ function MainPage(): JSX.Element {
         <Outlet />
       </div>
       <ErrorButton />
+      <SelectedItemsFlyout />
     </>
   );
 }

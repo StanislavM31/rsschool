@@ -13,7 +13,7 @@
     font-family: $font-display;
     font-size: $font-size-xl;
     font-weight: $font-weight-black;
-    color: $color-amber;
+    color: var(--color-amber);
     letter-spacing: $letter-spacing-xs;
     text-transform: uppercase;
   }
@@ -24,10 +24,31 @@
     border: $border-base;
     padding: $padding-xs;
     transition: opacity 0.15s;
+    color: var(--color-text);
 
     &:hover,
     &--active {
       opacity: $opacity-lg;
     }
   }
+
+  &__top-right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+  }
+}
+
+.theme-switcher {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.theme-switcher__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-text);
+  font-size: $font-size-sm;
 }

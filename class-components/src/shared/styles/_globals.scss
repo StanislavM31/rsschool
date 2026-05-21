@@ -1,12 +1,13 @@
 @use './_variables.scss' as *;
 
 body {
-  background: $color-bg;
-  color: $color-text;
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: $font-mono;
   font-size: $font-size-base;
   line-height: $line-height-md;
   min-height: 100vh;
+  transition: background 0.25s ease, color 0.25s ease;
 
   &::after {
     content: '';
@@ -22,6 +23,42 @@ body {
     pointer-events: none;
     z-index: 9999;
   }
+}
+
+:root {
+  --color-bg: #0d0f11;
+  --color-surface: #13171c;
+  --color-border: #1e2530;
+  --color-text: #c8d0da;
+  --color-text-dim: #5a6475;
+  --color-amber: #f5a623;
+  --color-primary: #4d8cff;
+  --color-on-primary: #ffffff;
+  --color-muted: #2d3340;
+}
+
+body[data-theme='light'] {
+  --color-bg: #f7f9fb;
+  --color-surface: #ffffff;
+  --color-border: #dde2ea;
+  --color-text: #1f2a37;
+  --color-text-dim: #5f6d7a;
+  --color-amber: #d78300;
+  --color-primary: #2563eb;
+  --color-on-primary: #ffffff;
+  --color-muted: #e2e8f0;
+}
+
+body[data-theme='dark'] {
+  --color-bg: #0d0f11;
+  --color-surface: #13171c;
+  --color-border: #1e2530;
+  --color-text: #c8d0da;
+  --color-text-dim: #5a6475;
+  --color-amber: #f5a623;
+  --color-primary: #4d8cff;
+  --color-on-primary: #ffffff;
+  --color-muted: #2d3340;
 }
 
 #root {
