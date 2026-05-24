@@ -1,8 +1,12 @@
-import type { JSX } from 'react';
-import { NavLink } from 'react-router-dom';
 import './header.scss';
 
+import { useTheme } from '@core/theme/use-theme.tsx';
+import type { JSX } from 'react';
+import { NavLink } from 'react-router-dom';
+
 function Header(): JSX.Element {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <header className="app-header">
       <div className="header__wrapper wrapper">
@@ -18,6 +22,9 @@ function Header(): JSX.Element {
           >
             About
           </NavLink>
+          <button className="theme-toggle" onClick={toggleTheme} type="button">
+            {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+          </button>
         </nav>
       </div>
     </header>

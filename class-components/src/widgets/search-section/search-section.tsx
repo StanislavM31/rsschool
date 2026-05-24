@@ -1,29 +1,22 @@
-import { useState, useEffect, type JSX } from 'react';
-import { KEY_SEARCH_TERM } from '@/shared/constants/search-constants.ts';
-import type { SearchSectionProps } from './model/interfaces/search-section-props.interface.ts';
-import SearchField from '@/widgets/search-field/search-field.tsx';
 import './search-section.scss';
-import { useLocalStorage } from '@/core/use-local-storage/use-local-storage.ts';
 
-function SearchSection({
-  onSearch,
-  isLoading,
-}: SearchSectionProps): JSX.Element {
-  const { value: savedTerm, setValue: setSavedTerm } = useLocalStorage({
-    key: KEY_SEARCH_TERM,
-    initialValue: '',
-  });
-  const [inputValue, setInputValue] = useState<string>(savedTerm);
+import { type JSX, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-  useEffect(() => {
-    onSearch(savedTerm);
-  }, []);
+import { useSearchStore } from '@/core/store/search-store.ts';
+import SearchField from '@/widgets/search-field/search-field.tsx';
 
-  const handleSearch = (): void => {
+function SearchSection(): JSX.Element {
+  const navigate = useNavigate();
+  const { term, isLoading, setTerm } = useSearchStore();
+
+  const [inputValue, setInputValue] = useState<string>(term);
+
+  const useSearch = (): void => {
     const trimmed = inputValue.trim();
     setInputValue(trimmed);
-    setSavedTerm(trimmed);
-    onSearch(trimmed);
+    setTerm(trimmed);
+    navigate('/main/1');
   };
 
   return (
@@ -33,7 +26,7 @@ function SearchSection({
           value={inputValue}
           isLoading={isLoading}
           onChange={setInputValue}
-          onSearch={handleSearch}
+          onSearch={useSearch}
         />
       </div>
     </section>

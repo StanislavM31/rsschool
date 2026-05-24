@@ -1,11 +1,11 @@
+import './index.scss';
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import App from '@/app.tsx';
-
 import ErrorBoundary from '@/core/error-boundary/error-boundary.tsx';
-
-import './index.scss';
+import { ThemeProvider } from '@/core/theme/theme-context.tsx';
 
 const container = document.getElementById('root');
 
@@ -15,8 +15,10 @@ if (container === null) {
 
 createRoot(container).render(
   <StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </ThemeProvider>
   </StrictMode>
 );
