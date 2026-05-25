@@ -2,11 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Header from './header';
+import { ThemeProvider } from '@/core/theme/theme-context.tsx';
 
 const renderHeader = () =>
   render(
     <MemoryRouter>
-      <Header />
+      <ThemeProvider>
+        <Header />
+      </ThemeProvider>
     </MemoryRouter>
   );
 

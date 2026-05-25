@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
 import App from './app';
 
 const mockSearchPeople = vi.fn();
@@ -11,12 +10,10 @@ vi.mock('./core/swapi/swapi-service', () => ({
   getPerson: vi.fn(),
 }));
 
-const renderApp = (initialPath = '/main') =>
-  render(
-    <MemoryRouter initialEntries={[initialPath]}>
-      <App />
-    </MemoryRouter>
-  );
+const renderApp = (initialPath = '/main') => {
+  window.history.pushState({}, '', initialPath);
+  return render(<App />);
+};
 
 describe('App', () => {
   let localStorageMock: Storage;

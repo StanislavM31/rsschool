@@ -5,7 +5,7 @@
   border-collapse: collapse;
 
   &__head tr {
-    border-bottom: $border-amber;
+    border-bottom: 1px solid var(--color-border);
   }
 
   &__th {
@@ -14,12 +14,25 @@
     font-size: $font-size-xs;
     letter-spacing: $letter-spacing-lg;
     text-transform: uppercase;
-    color: $color-amber;
+    color: var(--color-amber);
     font-weight: $font-weight-medium;
 
     &:first-child {
-      width: $width-table-col;
+      width: 72px;
     }
+  }
+
+  &__cell--select {
+    width: 72px;
+    padding: $padding-base;
+  }
+
+  &__checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
   }
 
   &__row {

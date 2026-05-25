@@ -1,20 +1,13 @@
 import { type JSX } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import MainPage from './pages/main/main-page.tsx';
-import PersonDetail from './entities/person/ui/details/person-details.tsx';
-import AboutPage from './pages/about/about-page.tsx';
-import NotFoundPage from './pages/not-found/not-found-page.tsx';
+
+import AppRouter from '@core/router/app-router.tsx';
+import { ThemeProvider } from '@/core/theme/theme-context.tsx';
 
 function App(): JSX.Element {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/main" replace />} />
-      <Route path="/main/:page?" element={<MainPage />}>
-        <Route path=":detailsId" element={<PersonDetail />} />
-      </Route>
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+    <ThemeProvider>
+      <AppRouter />
+    </ThemeProvider>
   );
 }
 
