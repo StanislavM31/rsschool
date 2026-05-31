@@ -1,8 +1,10 @@
-import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+
+import { render, screen } from '@testing-library/react';
 
 import AboutPage from './about-page';
+
+import { describe, expect, it } from 'vitest';
 
 describe('AboutPage', () => {
   it('should render the AboutPage component', () => {

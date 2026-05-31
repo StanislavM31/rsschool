@@ -1,6 +1,8 @@
+import { MemoryRouter } from 'react-router-dom';
+
 import NotFoundPage from '@pages/not-found/not-found-page.tsx';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+
 import { describe, expect, it } from 'vitest';
 
 describe('NotFoundPage', () => {

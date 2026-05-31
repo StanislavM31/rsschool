@@ -1,22 +1,22 @@
-import './person-details.scss';
-
 import type { JSX } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { usePersonQuery } from '@/core/swapi/hooks/use-person-query.ts';
 import Spinner from '@/shared/ui/spinner/spinner.tsx';
+import { AppRoute } from '@core/router/model/enums/app-route.enum.ts';
+import { RefreshButton } from '@shared/ui/buttons/refresh-button/refresh-button.tsx';
+import { ErrorDisplay } from '@shared/ui/errors/error-display/error-display.tsx';
+
+import './person-details.scss';
 
 function PersonDetail(): JSX.Element {
-  const { detailsId } = useParams();
-  const location = useLocation();
+  const { detailsId, page = '1' } = useParams();
   const navigate = useNavigate();
-
-  const page = location.pathname.match(/\/main\/(\d+)/)?.[1] ?? '1';
 
   const { data: person, isLoading, error, refetch } = usePersonQuery(detailsId);
 
   const handleClose = (): void => {
-    navigate(`/main/${page}`);
+    navigate(`${AppRoute.Main}/${page}`);
   };
 
   const renderContent = (): JSX.Element => {
@@ -25,12 +25,7 @@ function PersonDetail(): JSX.Element {
     }
 
     if (error !== null) {
-      return (
-        <div className="person-details__error">
-          <span className="person-details__error-icon">✖</span>
-          <div className="person-details__error-msg">{error.message}</div>
-        </div>
-      );
+      return <ErrorDisplay message={error.message} title="" />;
     }
 
     if (!person) {
@@ -77,13 +72,7 @@ function PersonDetail(): JSX.Element {
   return (
     <aside className="person-details">
       <div className="person-details__actions">
-        <button
-          className="person-details__refresh"
-          onClick={() => refetch()}
-          type="button"
-        >
-          ↻
-        </button>
+        <RefreshButton onClick={() => refetch()} />
         <button className="person-details__close" onClick={handleClose}>
           ✕
         </button>

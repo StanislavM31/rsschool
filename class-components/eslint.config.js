@@ -29,7 +29,17 @@ export default defineConfig([
     },
     rules: {
       'react-hooks/set-state-in-effect': 'off',
-      'simple-import-sort/imports': 'error',
+      'simple-import-sort/imports': [
+        'error',
+        {
+          groups: [
+            ['^react\\u0000$', '^react$', '^react-router-dom$'],
+            ['^@'],
+            ['^.+\\u0000$'],
+            ['^\\.'],
+          ],
+        },
+      ],
       'simple-import-sort/exports': 'error',
     },
     settings: {

@@ -1,8 +1,10 @@
-import './pagination.scss';
-
 import type { JSX } from 'react';
 
-import type { PaginationProps } from './model/interfaces/pagination.interface.ts';
+import { PaginationButton } from '@shared/ui/buttons/pagination-button/pagination-button.tsx';
+
+import type { PaginationProps } from '@shared/ui/pagination/model/types/pagination.type.ts';
+
+import './pagination.scss';
 
 function Pagination({
   currentPage,
@@ -30,14 +32,15 @@ function Pagination({
     const endPage = Math.min(totalPages, currentPage + 2);
 
     for (let i = startPage; i <= endPage; i++) {
+      const isPageActive = i === currentPage;
       pages.push(
         <button
           key={i}
-          className={`pagination__page ${i === currentPage ? 'pagination__page--active' : ''}`}
+          className={`pagination__page ${isPageActive ? 'pagination__page--active' : ''}`}
           onClick={() => {
             if (i !== currentPage) onPageChange(i);
           }}
-          disabled={i === currentPage}
+          disabled={isPageActive}
         >
           {i}
         </button>
@@ -58,23 +61,23 @@ function Pagination({
       </div>
 
       <div className="pagination__controls">
-        <button
-          className="pagination__btn pagination__btn--prev"
+        <PaginationButton
+          direction="prev"
           onClick={handlePrevious}
           disabled={!hasPrevious}
         >
-          ← Previous
-        </button>
+          ←
+        </PaginationButton>
 
         <div className="pagination__numbers">{renderPageNumbers()}</div>
 
-        <button
-          className="pagination__btn pagination__btn--next"
+        <PaginationButton
+          direction="next"
           onClick={handleNext}
           disabled={!hasNext}
         >
-          Next →
-        </button>
+          →
+        </PaginationButton>
       </div>
     </div>
   );

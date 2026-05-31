@@ -1,7 +1,3 @@
-import './results-section.scss';
-
-import type { Person } from '@entities/person/model/types/person.type.ts';
-import { useResultsSection } from '@widgets/results-sections/hooks/use-results-section.ts';
 import type { JSX } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -11,6 +7,14 @@ import ResultsTable from '@/shared/ui/results-table/results-table.tsx';
 import Spinner from '@/shared/ui/spinner/spinner.tsx';
 import { extractPersonId } from '@/shared/utilities/extract-person-id.ts';
 import { stopPropagation } from '@/shared/utilities/stop-propagation.ts';
+import { AppRoute } from '@core/router/model/enums/app-route.enum.ts';
+import { RefreshButton } from '@shared/ui/buttons/refresh-button/refresh-button.tsx';
+import { ErrorDisplay } from '@shared/ui/errors/error-display/error-display.tsx';
+import { useResultsSection } from '@widgets/results-sections/hooks/use-results-section.ts';
+
+import type { Person } from '@entities/person/model/types/person.type.ts';
+
+import './results-section.scss';
 
 function ResultsSection(): JSX.Element {
   const { detailsId } = useParams();
@@ -30,48 +34,30 @@ function ResultsSection(): JSX.Element {
 
   const { toggleItem, isSelected } = useSelectionStore();
 
+  const shouldShowPagination = totalCount > 0;
+
   const handleSelect = (person: Person): void => {
     const id = extractPersonId(person.url);
-    navigate(`/main/${currentPage}/${id}`);
+    navigate(`${AppRoute.Main}/${currentPage}/${id}`);
   };
 
   const handlePageChange = (newPage: number): void => {
-    navigate(`/main/${newPage}${detailsId ? `/${detailsId}` : ''}`);
-  };
-
-  const renderContent = (): JSX.Element => {
-    if (isLoading) {
-      return <Spinner />;
-    }
-
-    if (error !== null) {
-      return (
-        <div className="results-section__error">
-          <span className="results-section__error-icon">✖</span>
-          <div>
-            <div className="results-section__error-title">REQUEST FAILED</div>
-            <div className="results-section__error-msg">{error}</div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <ResultsTable
-        results={results}
-        onSelect={handleSelect}
-        onCheckboxToggle={toggleItem}
-        isChecked={isSelected}
-        selectedId={detailsId}
-      />
-    );
+    navigate(`${AppRoute.Main}/${newPage}${detailsId ? `/${detailsId}` : ''}`);
   };
 
   return (
     <section className="results-section">
       <div className="results__wrapper wrapper" onClick={stopPropagation}>
-        {renderContent()}
-        {totalCount > 0 && (
+        {isLoading && <Spinner />}
+        {error && <ErrorDisplay message={error} />}
+        <ResultsTable
+          results={results}
+          onSelect={handleSelect}
+          onCheckboxToggle={toggleItem}
+          isChecked={isSelected}
+          selectedId={detailsId}
+        />
+        {shouldShowPagination && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -82,13 +68,7 @@ function ResultsSection(): JSX.Element {
           />
         )}
         <div className="results-section__toolbar">
-          <button
-            className="results-section__refresh"
-            onClick={() => refetch()}
-            type="button"
-          >
-            ↻ Refresh
-          </button>
+          <RefreshButton onClick={() => refetch()} />
         </div>
       </div>
     </section>

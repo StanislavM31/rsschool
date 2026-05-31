@@ -1,8 +1,10 @@
-import './header.scss';
-
-import { useTheme } from '@core/theme/use-theme.tsx';
 import type { JSX } from 'react';
 import { NavLink } from 'react-router-dom';
+
+import { AppRoute } from '@core/router/model/enums/app-route.enum.ts';
+import { useTheme } from '@core/theme/use-theme.tsx';
+
+import './header.scss';
 
 function Header(): JSX.Element {
   const { theme, toggleTheme } = useTheme();
@@ -10,7 +12,7 @@ function Header(): JSX.Element {
   return (
     <header className="app-header">
       <div className="header__wrapper wrapper">
-        <NavLink to="/main" className="app-header__logo">
+        <NavLink to={AppRoute.Main} className="app-header__logo">
           Star Wars API search
         </NavLink>
         <nav className="app-header__nav">
