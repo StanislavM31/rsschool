@@ -1,7 +1,15 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+
+import { useSearchStore } from '@/core/store/search-store.ts';
+import { useSelectionStore } from '@/core/store/selection-store.ts';
+import { createTestQueryClient } from '@/test/query-test-utils.tsx';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
 import App from './app';
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockSearchPeople = vi.fn();
 
@@ -10,28 +18,22 @@ vi.mock('./core/swapi/swapi-service', () => ({
   getPerson: vi.fn(),
 }));
 
-const renderApp = (initialPath = '/main') => {
-  window.history.pushState({}, '', initialPath);
-  return render(<App />);
-};
+const renderApp = (initialPath = '/main/1') =>
+  render(
+    <QueryClientProvider client={createTestQueryClient()}>
+      <MemoryRouter initialEntries={[initialPath]}>
+        <App />
+      </MemoryRouter>
+    </QueryClientProvider>
+  );
 
 describe('App', () => {
-  let localStorageMock: Storage;
-
   beforeEach(() => {
     mockSearchPeople.mockClear();
-    localStorageMock = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-      length: 0,
-      key: vi.fn(),
-    };
-    Object.defineProperty(window, 'localStorage', {
-      value: localStorageMock,
-      writable: true,
-    });
+    useSearchStore.setState({ term: '' });
+    useSelectionStore.setState({ selectedItems: [] });
+    vi.spyOn(Storage.prototype, 'setItem');
+    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
   });
 
   afterEach(() => {
@@ -63,70 +65,49 @@ describe('App', () => {
   });
 
   it('should call searchPeople on mount with saved term', async () => {
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
-      'Luke'
-    );
+    useSearchStore.setState({ term: 'Luke' });
     mockSearchPeople.mockResolvedValue({
       results: [],
       totalCount: 0,
-      currentPage: 1,
       totalPages: 1,
       hasNextPage: false,
       hasPreviousPage: false,
     });
-
     await act(async () => {
       renderApp();
     });
-
     expect(mockSearchPeople).toHaveBeenCalledWith({ term: 'Luke', page: 1 });
   });
 
-  it('should call searchPeople on mount with empty term when no saved term', async () => {
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
-      null
-    );
+  it('should call searchPeople on mount with empty term', async () => {
     mockSearchPeople.mockResolvedValue({
       results: [],
       totalCount: 0,
-      currentPage: 1,
       totalPages: 1,
       hasNextPage: false,
       hasPreviousPage: false,
     });
-
     await act(async () => {
       renderApp();
     });
-
     expect(mockSearchPeople).toHaveBeenCalledWith({ term: '', page: 1 });
   });
 
   it('should save search term to localStorage when searching', async () => {
     const user = userEvent.setup();
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue('');
     mockSearchPeople.mockResolvedValue({
       results: [],
       totalCount: 0,
-      currentPage: 1,
       totalPages: 1,
       hasNextPage: false,
       hasPreviousPage: false,
     });
-
     await act(async () => {
       renderApp();
     });
-
-    mockSearchPeople.mockClear();
-
-    const input = screen.getByLabelText('Search term');
-    await user.type(input, 'Darth Vader');
-
-    const searchButton = screen.getByText('SEARCH');
-    await user.click(searchButton);
-
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+    await user.type(screen.getByLabelText('Search term'), 'Darth Vader');
+    await user.click(screen.getByText('SEARCH'));
+    expect(localStorage.setItem).toHaveBeenCalledWith(
       'swapi_search_term',
       'Darth Vader'
     );
@@ -134,7 +115,6 @@ describe('App', () => {
 
   it('should display results after successful search', async () => {
     const user = userEvent.setup();
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue('');
     mockSearchPeople.mockResolvedValue({
       results: [
         {
@@ -150,46 +130,28 @@ describe('App', () => {
         },
       ],
       totalCount: 1,
-      currentPage: 1,
       totalPages: 1,
       hasNextPage: false,
       hasPreviousPage: false,
     });
-
     await act(async () => {
       renderApp();
     });
-
-    mockSearchPeople.mockClear();
-
-    const input = screen.getByLabelText('Search term');
-    await user.type(input, 'Luke');
-
-    const searchButton = screen.getByText('SEARCH');
-    await user.click(searchButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Luke Skywalker')).toBeInTheDocument();
-    });
+    await user.type(screen.getByLabelText('Search term'), 'Luke');
+    await user.click(screen.getByText('SEARCH'));
+    await waitFor(() =>
+      expect(screen.getByText('Luke Skywalker')).toBeInTheDocument()
+    );
   });
 
   it('should display error message when API call fails', async () => {
     const user = userEvent.setup();
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue('');
     mockSearchPeople.mockResolvedValue({ message: 'Server error 500' });
-
     await act(async () => {
       renderApp();
     });
-
-    mockSearchPeople.mockClear();
-
-    const input = screen.getByLabelText('Search term');
-    await user.type(input, 'Luke');
-
-    const searchButton = screen.getByText('SEARCH');
-    await user.click(searchButton);
-
+    await user.type(screen.getByLabelText('Search term'), 'Luke');
+    await user.click(screen.getByText('SEARCH'));
     await waitFor(() => {
       expect(screen.getByText('REQUEST FAILED')).toBeInTheDocument();
       expect(screen.getByText('Server error 500')).toBeInTheDocument();
@@ -198,35 +160,24 @@ describe('App', () => {
 
   it('should show loading state during search', async () => {
     const user = userEvent.setup();
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue('');
     mockSearchPeople.mockResolvedValue({
       results: [],
       totalCount: 0,
-      currentPage: 1,
       totalPages: 1,
       hasNextPage: false,
       hasPreviousPage: false,
     });
-
     await act(async () => {
       renderApp();
     });
-
-    mockSearchPeople.mockClear();
     mockSearchPeople.mockImplementation(() => new Promise(() => {}));
-
-    const input = screen.getByLabelText('Search term');
-    await user.type(input, 'Luke');
-
-    const searchButton = screen.getByText('SEARCH');
-    await user.click(searchButton);
-
-    expect(screen.getByText('FETCHING…')).toBeInTheDocument();
+    await user.type(screen.getByLabelText('Search term'), 'Luke');
+    await user.click(screen.getByText('SEARCH'));
+    expect(screen.getByText('LOADING DATA')).toBeInTheDocument();
   });
 
   it('should handle pagination page change', async () => {
     const user = userEvent.setup();
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue('');
     mockSearchPeople.mockResolvedValue({
       results: [
         {
@@ -242,19 +193,16 @@ describe('App', () => {
         },
       ],
       totalCount: 20,
-      currentPage: 1,
       totalPages: 2,
       hasNextPage: true,
       hasPreviousPage: false,
     });
-
     await act(async () => {
       renderApp();
     });
-
-    await waitFor(() => {
-      expect(screen.getByText('Page 1 of 2')).toBeInTheDocument();
-    });
+    await waitFor(() =>
+      expect(screen.getByText('Page 1 of 2')).toBeInTheDocument()
+    );
 
     mockSearchPeople.mockResolvedValue({
       results: [
@@ -271,21 +219,14 @@ describe('App', () => {
         },
       ],
       totalCount: 20,
-      currentPage: 2,
       totalPages: 2,
       hasNextPage: false,
       hasPreviousPage: true,
     });
-
-    const nextButton = screen.getByText('Next →');
-    await user.click(nextButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Page 2 of 2')).toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(mockSearchPeople).toHaveBeenCalledWith({ term: '', page: 2 });
-    });
+    await user.click(screen.getByText('Next →'));
+    await waitFor(() =>
+      expect(screen.getByText('Page 2 of 2')).toBeInTheDocument()
+    );
+    expect(mockSearchPeople).toHaveBeenCalledWith({ term: '', page: 2 });
   });
 });

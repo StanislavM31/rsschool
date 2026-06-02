@@ -1,141 +1,92 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+
+import { useSearchStore } from '@/core/store/search-store.ts';
+import { createTestQueryClient } from '@/test/query-test-utils.tsx';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
 import SearchSection from './search-section';
 
-const mockOnSearch = vi.fn();
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const defaultProps = {
-  onSearch: mockOnSearch,
-  isLoading: false,
-};
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return { ...actual, useNavigate: () => mockNavigate };
+});
+
+vi.mock('@tanstack/react-query', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@tanstack/react-query')>();
+  return { ...actual, useIsFetching: () => 0 };
+});
+
+const renderSearchSection = () =>
+  render(
+    <QueryClientProvider client={createTestQueryClient()}>
+      <MemoryRouter>
+        <SearchSection />
+      </MemoryRouter>
+    </QueryClientProvider>
+  );
 
 describe('SearchSection', () => {
-  let localStorageMock: Storage;
-
   beforeEach(() => {
-    mockOnSearch.mockClear();
-    localStorageMock = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-      length: 0,
-      key: vi.fn(),
-    };
-    Object.defineProperty(window, 'localStorage', {
-      value: localStorageMock,
-      writable: true,
-    });
+    mockNavigate.mockClear();
+    useSearchStore.setState({ term: '' });
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('should render without crashing', () => {
-    render(<SearchSection {...defaultProps} />);
+  it('renders without crashing', () => {
+    renderSearchSection();
     expect(screen.getByLabelText('Search term')).toBeInTheDocument();
   });
 
-  it('should read saved search term from localStorage on mount', () => {
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
-      'Luke Skywalker'
-    );
-    render(<SearchSection {...defaultProps} />);
-    expect(localStorageMock.getItem).toHaveBeenCalledWith('swapi_search_term');
+  it('renders with section class', () => {
+    const { container } = renderSearchSection();
+    expect(container.querySelector('.search-section')).toBeInTheDocument();
   });
 
-  it('should use empty string when localStorage has no saved term', () => {
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
-      null
-    );
-    render(<SearchSection {...defaultProps} />);
-    expect(localStorageMock.getItem).toHaveBeenCalledWith('swapi_search_term');
+  it('initialises input with current store term', () => {
+    useSearchStore.setState({ term: 'Luke' });
+    renderSearchSection();
+    expect(screen.getByLabelText('Search term')).toHaveValue('Luke');
   });
 
-  it('should call onSearch with saved term on component mount', () => {
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
-      'Darth Vader'
-    );
-    render(<SearchSection {...defaultProps} />);
-    expect(mockOnSearch).toHaveBeenCalledWith('Darth Vader');
-  });
-
-  it('should call onSearch with empty string on mount when no saved term', () => {
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
-      null
-    );
-    render(<SearchSection {...defaultProps} />);
-    expect(mockOnSearch).toHaveBeenCalledWith('');
-  });
-
-  it('should update input value when user types', async () => {
+  it('updates input value when user types', async () => {
     const user = userEvent.setup();
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue('');
-    render(<SearchSection {...defaultProps} />);
-
-    const input = screen.getByLabelText('Search term');
-    await user.type(input, 'Luke');
-
-    expect(input).toHaveValue('Luke');
+    renderSearchSection();
+    await user.type(screen.getByLabelText('Search term'), 'Vader');
+    expect(screen.getByLabelText('Search term')).toHaveValue('Vader');
   });
 
-  it('should trim search term before calling onSearch', async () => {
+  it('trims term and updates store on search', async () => {
     const user = userEvent.setup();
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue('');
-    render(<SearchSection {...defaultProps} />);
-
-    const input = screen.getByLabelText('Search term');
-    await user.type(input, '  Luke  ');
-
-    mockOnSearch.mockClear();
-
-    const searchButton = screen.getByText('SEARCH');
-    await user.click(searchButton);
-
-    expect(mockOnSearch).toHaveBeenCalledWith('Luke');
+    renderSearchSection();
+    await user.type(screen.getByLabelText('Search term'), '  Luke  ');
+    await user.click(screen.getByText('SEARCH'));
+    expect(useSearchStore.getState().term).toBe('Luke');
   });
 
-  it('should call onSearch when search button is clicked', async () => {
+  it('navigates to /main/1 on search', async () => {
     const user = userEvent.setup();
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue('');
-    render(<SearchSection {...defaultProps} />);
-
-    mockOnSearch.mockClear();
-
-    const searchButton = screen.getByText('SEARCH');
-    await user.click(searchButton);
-
-    expect(mockOnSearch).toHaveBeenCalled();
+    renderSearchSection();
+    await user.click(screen.getByText('SEARCH'));
+    expect(mockNavigate).toHaveBeenCalledWith('/main/1');
   });
 
-  it('should pass isLoading prop to SearchField', () => {
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue('');
-    render(<SearchSection {...defaultProps} isLoading={true} />);
-    const input = screen.getByLabelText('Search term');
-    expect(input).toBeDisabled();
-  });
-
-  it('should handle Enter key press to trigger search', async () => {
+  it('persists term to localStorage via store on search', async () => {
     const user = userEvent.setup();
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue('');
-    render(<SearchSection {...defaultProps} />);
-
-    mockOnSearch.mockClear();
-
-    const input = screen.getByLabelText('Search term');
-    await user.type(input, 'Luke{Enter}');
-
-    await waitFor(() => {
-      expect(mockOnSearch).toHaveBeenCalled();
-    });
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
+    renderSearchSection();
+    await user.type(screen.getByLabelText('Search term'), 'Obi-Wan');
+    await user.click(screen.getByText('SEARCH'));
+    expect(setItemSpy).toHaveBeenCalledWith('swapi_search_term', 'Obi-Wan');
   });
 
-  it('should render with section class', () => {
-    (localStorageMock.getItem as ReturnType<typeof vi.fn>).mockReturnValue('');
-    const { container } = render(<SearchSection {...defaultProps} />);
-    const section = container.querySelector('.search-section');
-    expect(section).toBeInTheDocument();
+  it('triggers search on Enter key', async () => {
+    const user = userEvent.setup();
+    renderSearchSection();
+    await user.type(screen.getByLabelText('Search term'), 'Leia{Enter}');
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/main/1'));
   });
 });

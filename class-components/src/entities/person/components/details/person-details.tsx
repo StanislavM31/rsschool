@@ -1,58 +1,22 @@
-import { useState, useEffect, type JSX } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import type { JSX } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import type { Person } from '@/entities/person/model/interfaces/person.interface.ts';
+import { usePersonQuery } from '@/core/swapi/hooks/use-person-query.ts';
+import { ErrorDisplay } from '@/shared/ui/error-display/error-display.tsx';
 import Spinner from '@/shared/ui/spinner/spinner.tsx';
+import { AppRoute } from '@core/router/model/enums/app-route.enum.ts';
+import { RefreshButton } from '@shared/ui/buttons/refresh-button/refresh-button.tsx';
+
 import './person-details.scss';
-import { getPerson } from '@/core/swapi/swapi-service.ts';
 
 function PersonDetail(): JSX.Element {
-  const { detailsId } = useParams();
-  const location = useLocation();
+  const { detailsId, page = '1' } = useParams();
   const navigate = useNavigate();
 
-  const page = location.pathname.match(/\/main\/(\d+)/)?.[1] || '1';
-  const [person, setPerson] = useState<Person | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!detailsId) return;
-
-    let isMounted = true;
-
-    setIsLoading(true);
-    setPerson(null);
-    setError(null);
-
-    getPerson(detailsId)
-      .then((response) => {
-        if (!isMounted) return;
-
-        if ('message' in response) {
-          setError(response.message);
-        } else {
-          setPerson(response);
-        }
-      })
-      .catch((err: unknown) => {
-        if (!isMounted) return;
-
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      })
-      .finally(() => {
-        if (!isMounted) return;
-
-        setIsLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [detailsId]);
+  const { data: person, isLoading, error, refetch } = usePersonQuery(detailsId);
 
   const handleClose = (): void => {
-    navigate(`/main/${page}`);
+    navigate(`${AppRoute.Main}/${page}`);
   };
 
   const renderContent = (): JSX.Element => {
@@ -61,15 +25,10 @@ function PersonDetail(): JSX.Element {
     }
 
     if (error !== null) {
-      return (
-        <div className="person-details__error">
-          <span className="person-details__error-icon">✖</span>
-          <div className="person-details__error-msg">{error}</div>
-        </div>
-      );
+      return <ErrorDisplay message={error.message} title="" />;
     }
 
-    if (person === null) {
+    if (!person) {
       return <div className="person-details__empty">No data available.</div>;
     }
 
@@ -112,13 +71,12 @@ function PersonDetail(): JSX.Element {
 
   return (
     <aside className="person-details">
-      <button
-        className="person-details__close"
-        onClick={handleClose}
-        aria-label="Close details"
-      >
-        ✕
-      </button>
+      <div className="person-details__actions">
+        <RefreshButton onClick={() => refetch()} />
+        <button className="person-details__close" onClick={handleClose}>
+          ✕
+        </button>
+      </div>
       {renderContent()}
     </aside>
   );

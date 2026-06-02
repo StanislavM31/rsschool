@@ -1,5 +1,7 @@
 import type { JSX } from 'react';
+
 import type { CardProps } from './model/interfaces/card.interface';
+
 import './card.scss';
 
 function Card({ person }: CardProps): JSX.Element {

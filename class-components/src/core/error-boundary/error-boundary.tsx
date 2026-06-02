@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type JSX, type ReactNode } from 'react';
+
 import './error-boundary.scss';
 
 interface ErrorBoundaryState {

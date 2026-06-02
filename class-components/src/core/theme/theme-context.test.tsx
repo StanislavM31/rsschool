@@ -1,34 +1,36 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import { ThemeProvider } from './theme-context';
+import { useTheme } from './use-theme';
+
 import { describe, expect, it } from 'vitest';
-import { ThemeProvider, useTheme } from './theme-context.tsx';
 
 function TestComponent() {
-  const { theme, setTheme, toggleTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div>
-      <span data-testid="theme-value">{theme}</span>
-      <button onClick={() => setTheme('dark')}>Set dark</button>
-      <button onClick={toggleTheme}>Toggle</button>
+      <span>{theme}</span>
+      <button onClick={toggleTheme}>toggle</button>
     </div>
   );
 }
 
-describe('ThemeProvider', () => {
-  it('renders with default theme and toggles theme', async () => {
+describe('ThemeContext', () => {
+  it('should toggle theme', async () => {
+    const user = userEvent.setup();
+
     render(
       <ThemeProvider>
         <TestComponent />
       </ThemeProvider>
     );
 
-    expect(screen.getByTestId('theme-value')).toHaveTextContent('light');
+    expect(screen.getByText(/dark/i)).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText('Set dark'));
-    expect(screen.getByTestId('theme-value')).toHaveTextContent('dark');
+    await user.click(screen.getByRole('button'));
 
-    await userEvent.click(screen.getByText('Toggle'));
-    expect(screen.getByTestId('theme-value')).toHaveTextContent('light');
+    expect(screen.getByText(/light/i)).toBeInTheDocument();
   });
 });

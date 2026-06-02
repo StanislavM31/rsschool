@@ -1,57 +1,27 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type JSX,
-  type ReactNode,
-} from 'react';
+import { createContext, type JSX, useEffect, useState } from 'react';
 
-export type Theme = 'light' | 'dark';
-
-interface ThemeContextValue {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  toggleTheme: () => void;
-}
+import type { Theme } from '@core/theme/model/types/theme.type.ts';
+import type { ThemeContextValue } from '@core/theme/model/types/theme-context-value.ts';
+import type { ThemeProviderProps } from '@core/theme/model/types/theme-provider-props.ts';
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const STORAGE_KEY = 'app-theme';
-
-export function ThemeProvider({ children }: { children: ReactNode }): JSX.Element {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') {
-      return 'light';
-    }
-
-    return (localStorage.getItem(STORAGE_KEY) as Theme) ?? 'light';
-  });
+export function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
+  const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
-    document.body.dataset.theme = theme;
-    localStorage.setItem(STORAGE_KEY, theme);
+    document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  const value = useMemo(
-    () => ({
-      theme,
-      setTheme,
-      toggleTheme: () => setTheme((current) => (current === 'light' ? 'dark' : 'light')),
-    }),
-    [theme]
+  const toggleTheme = (): void => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
   );
-
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
-export function useTheme(): ThemeContextValue {
-  const context = useContext(ThemeContext);
-
-  if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider');
-  }
-
-  return context;
-}
+export default ThemeContext;

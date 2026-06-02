@@ -1,29 +1,25 @@
-import { useState, useEffect, type JSX } from 'react';
-import { KEY_SEARCH_TERM } from '@/shared/constants/search-constants.ts';
-import type { SearchSectionProps } from './model/interfaces/search-section-props.interface.ts';
+import { type JSX, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { useSearchStore } from '@/core/store/search-store.ts';
 import SearchField from '@/widgets/search-field/search-field.tsx';
+import { AppRoute } from '@core/router/model/enums/app-route.enum.ts';
+import { useIsFetching } from '@tanstack/react-query';
+
 import './search-section.scss';
-import { useLocalStorage } from '@/core/use-local-storage/use-local-storage.ts';
 
-function SearchSection({
-  onSearch,
-  isLoading,
-}: SearchSectionProps): JSX.Element {
-  const { value: savedTerm, setValue: setSavedTerm } = useLocalStorage({
-    key: KEY_SEARCH_TERM,
-    initialValue: '',
-  });
-  const [inputValue, setInputValue] = useState<string>(savedTerm);
+function SearchSection(): JSX.Element {
+  const navigate = useNavigate();
+  const isFetching = useIsFetching() > 0;
+  const { term, setTerm } = useSearchStore();
 
-  useEffect(() => {
-    onSearch(savedTerm);
-  }, []);
+  const [inputValue, setInputValue] = useState<string>(term);
 
-  const handleSearch = (): void => {
+  const useSearch = (): void => {
     const trimmed = inputValue.trim();
     setInputValue(trimmed);
-    setSavedTerm(trimmed);
-    onSearch(trimmed);
+    setTerm(trimmed);
+    navigate(`${AppRoute.Main}/1`);
   };
 
   return (
@@ -31,9 +27,9 @@ function SearchSection({
       <div className="search__wrapper wrapper">
         <SearchField
           value={inputValue}
-          isLoading={isLoading}
+          isLoading={isFetching}
           onChange={setInputValue}
-          onSearch={handleSearch}
+          onSearch={useSearch}
         />
       </div>
     </section>

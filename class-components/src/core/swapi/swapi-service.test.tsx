@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { searchPeople } from './swapi-service';
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('searchPeople', () => {
   beforeEach(() => {

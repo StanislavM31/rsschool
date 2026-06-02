@@ -1,5 +1,7 @@
 import React, { type JSX } from 'react';
+
 import type { SearchFieldProps } from './model/interfaces/search-field.interface';
+
 import './search-field.scss';
 
 function SearchField({
@@ -17,6 +19,8 @@ function SearchField({
       onSearch();
     }
   };
+
+  const buttonText = isLoading ? 'FETCHING…' : 'SEARCH';
 
   return (
     <div className="search-field">
@@ -43,7 +47,7 @@ function SearchField({
         onClick={onSearch}
         disabled={isLoading}
       >
-        {isLoading ? 'FETCHING…' : 'SEARCH'}
+        {buttonText}
       </button>
     </div>
   );

@@ -1,5 +1,6 @@
 import { type JSX } from 'react';
 
+import { ThemeProvider } from '@/core/theme/theme-context.tsx';
 import AppRouter from '@core/router/app-router.tsx';
 import { ThemeProvider } from '@/core/theme/theme-context.tsx';
 

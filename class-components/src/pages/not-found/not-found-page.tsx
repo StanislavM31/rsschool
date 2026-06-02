@@ -1,5 +1,8 @@
 import type { JSX } from 'react';
 import { Link } from 'react-router-dom';
+
+import { AppRoute } from '@core/router/model/enums/app-route.enum.ts';
+
 import './not-found-page.scss';
 
 function NotFoundPage(): JSX.Element {
@@ -10,7 +13,7 @@ function NotFoundPage(): JSX.Element {
       <p className="not-found-page__text">
         The page you are looking for does not exist or has been moved.
       </p>
-      <Link className="not-found-page__back" to="/main">
+      <Link className="not-found-page__back" to={AppRoute.Main}>
         Return to Search
       </Link>
     </div>

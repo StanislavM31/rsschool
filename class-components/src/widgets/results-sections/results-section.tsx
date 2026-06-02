@@ -1,76 +1,75 @@
 import type { JSX } from 'react';
-import type { ResultsSectionProps } from './model/interfaces/results-section.interface.ts';
-import Spinner from '@/shared/ui/spinner/spinner.tsx';
+import { useNavigate, useParams } from 'react-router-dom';
+
+import { useSelectionStore } from '@/core/store/selection-store.ts';
+import { ErrorDisplay } from '@/shared/ui/error-display/error-display.tsx';
 import Pagination from '@/shared/ui/pagination/pagination.tsx';
 import ResultsTable from '@/shared/ui/results-table/results-table.tsx';
+import Spinner from '@/shared/ui/spinner/spinner.tsx';
+import { extractPersonId } from '@/shared/utilities/extract-person-id.ts';
+import { stopPropagation } from '@/shared/utilities/stop-propagation.ts';
+import { AppRoute } from '@core/router/model/enums/app-route.enum.ts';
+import { RefreshButton } from '@shared/ui/buttons/refresh-button/refresh-button.tsx';
+import { useResultsSection } from '@widgets/results-sections/hooks/use-results-section.ts';
+
+import type { Person } from '@entities/person/model/types/person.type.ts';
+
 import './results-section.scss';
 
-function ResultsSection({
-  isLoading,
-  error,
-  results,
-  currentPage,
-  totalPages,
-  totalCount,
-  hasNextPage,
-  hasPreviousPage,
-  onPageChange,
-  onSelect,
-  selectedId,
-}: ResultsSectionProps): JSX.Element {
-  const renderContent = (): JSX.Element => {
-    if (isLoading) {
-      return <Spinner />;
-    }
+function ResultsSection(): JSX.Element {
+  const { detailsId } = useParams();
+  const navigate = useNavigate();
 
-    if (error !== null) {
-      return (
-        <div className="results-section__error">
-          <span className="results-section__error-icon">✖</span>
-          <div>
-            <div className="results-section__error-title">REQUEST FAILED</div>
-            <div className="results-section__error-msg">{error}</div>
-          </div>
-        </div>
-      );
-    }
+  const {
+    results,
+    isLoading,
+    error,
+    currentPage,
+    totalPages,
+    totalCount,
+    hasNextPage,
+    hasPreviousPage,
+    refetch,
+  } = useResultsSection();
 
-    return (
-      <ResultsTable
-        results={results}
-        onSelect={onSelect}
-        selectedId={selectedId}
-      />
-    );
+  const { toggleItem, isSelected } = useSelectionStore();
+
+  const shouldShowPagination = totalCount > 0;
+
+  const handleSelect = (person: Person): void => {
+    const id = extractPersonId(person.url);
+    navigate(`${AppRoute.Main}/${currentPage}/${id}`);
   };
 
-  const renderPagination = (): JSX.Element | null => {
-    if (totalCount === 0) {
-      return null;
-    }
-
-    return (
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        hasNext={hasNextPage}
-        hasPrevious={hasPreviousPage}
-        onPageChange={onPageChange}
-        count={totalCount}
-      />
-    );
+  const handlePageChange = (newPage: number): void => {
+    navigate(`${AppRoute.Main}/${newPage}${detailsId ? `/${detailsId}` : ''}`);
   };
 
   return (
     <section className="results-section">
-      <div
-        className="results__wrapper wrapper"
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
-        {renderContent()}
-        {renderPagination()}
+      <div className="results__wrapper wrapper" onClick={stopPropagation}>
+        {isLoading && <Spinner />}
+        {error && <ErrorDisplay message={error} />}
+        <ResultsTable
+          results={results}
+          onSelect={handleSelect}
+          onCheckboxToggle={toggleItem}
+          isChecked={isSelected}
+          selectedId={detailsId}
+        />
+        {shouldShowPagination && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            hasNext={hasNextPage}
+            hasPrevious={hasPreviousPage}
+            onPageChange={handlePageChange}
+            count={totalCount}
+          />
+        )}
+        <div className="results-section__toolbar">
+          <RefreshButton onClick={() => refetch()} />
+        </div>
       </div>
     </section>
   );
