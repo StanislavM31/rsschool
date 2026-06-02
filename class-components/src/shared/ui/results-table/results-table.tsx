@@ -16,6 +16,9 @@ function ResultsTable({
   isChecked,
   selectedId,
 }: ResultsTableProps): JSX.Element {
+  const toggleSelection = useSelectionStore((state) => state.toggleSelection);
+  const selectedItems = useSelectionStore((state) => state.selectedItems);
+
   if (!results.length) {
     return (
       <div className="results-table__empty">

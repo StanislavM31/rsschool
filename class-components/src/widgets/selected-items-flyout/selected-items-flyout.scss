@@ -1,0 +1,47 @@
+.selected-items-flyout {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--color-surface);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+}
+
+.selected-items-flyout__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  max-width: 60%;
+  margin: 0 auto;
+}
+
+.selected-items-flyout__label {
+  font-weight: 600;
+}
+
+.selected-items-flyout__actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.selected-items-flyout__button {
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.selected-items-flyout__button--clear {
+  background: var(--color-muted);
+  color: var(--color-text);
+}
+
+.selected-items-flyout__button--download {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
