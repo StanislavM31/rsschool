@@ -1,19 +1,20 @@
 import type { ReactNode } from 'react';
 
+import { QueryClientProvider } from '@tanstack/react-query';
+
 import {
   createCachingQueryClient,
   createTestQueryClient,
 } from '@/test/query-test-utils.tsx';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 
 import { usePeopleQuery } from './use-people-query';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mockSearchPeople = vi.fn();
+const mockGetPeople = vi.fn();
 vi.mock('@/core/swapi/swapi-service.ts', () => ({
-  searchPeople: (...args: unknown[]) => mockSearchPeople(...args),
+  getPeople: (...args: unknown[]) => mockGetPeople(...args),
 }));
 
 const successResponse = {
@@ -39,7 +40,7 @@ const successResponse = {
 
 describe('usePeopleQuery', () => {
   beforeEach(() => {
-    mockSearchPeople.mockClear();
+    mockGetPeople.mockClear();
   });
 
   const makeWrapper = (client = createTestQueryClient()) => {
@@ -51,7 +52,7 @@ describe('usePeopleQuery', () => {
   };
 
   it('starts in loading state', () => {
-    mockSearchPeople.mockResolvedValue(successResponse);
+    mockGetPeople.mockResolvedValue(successResponse);
     const { result } = renderHook(() => usePeopleQuery('', 1), {
       wrapper: makeWrapper(),
     });
@@ -59,7 +60,7 @@ describe('usePeopleQuery', () => {
   });
 
   it('resolves to success state with data', async () => {
-    mockSearchPeople.mockResolvedValue(successResponse);
+    mockGetPeople.mockResolvedValue(successResponse);
     const { result } = renderHook(() => usePeopleQuery('', 1), {
       wrapper: makeWrapper(),
     });
@@ -67,17 +68,17 @@ describe('usePeopleQuery', () => {
     expect(result.current.data?.results[0].name).toBe('Luke Skywalker');
   });
 
-  it('calls searchPeople with correct params', async () => {
-    mockSearchPeople.mockResolvedValue(successResponse);
+  it('calls getPeople with correct params', async () => {
+    mockGetPeople.mockResolvedValue(successResponse);
     const { result } = renderHook(() => usePeopleQuery('Luke', 2), {
       wrapper: makeWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(mockSearchPeople).toHaveBeenCalledWith({ term: 'Luke', page: 2 });
+    expect(mockGetPeople).toHaveBeenCalledWith({ term: 'Luke', page: 2 });
   });
 
   it('enters error state when API returns a message', async () => {
-    mockSearchPeople.mockResolvedValue({ message: 'Not found' });
+    mockGetPeople.mockResolvedValue({ message: 'Not found' });
     const { result } = renderHook(() => usePeopleQuery('unknown', 1), {
       wrapper: makeWrapper(),
     });
@@ -86,7 +87,7 @@ describe('usePeopleQuery', () => {
   });
 
   it('enters error state when fetch rejects', async () => {
-    mockSearchPeople.mockRejectedValue(new Error('Network failure'));
+    mockGetPeople.mockRejectedValue(new Error('Network failure'));
     const { result } = renderHook(() => usePeopleQuery('', 1), {
       wrapper: makeWrapper(),
     });
@@ -95,21 +96,21 @@ describe('usePeopleQuery', () => {
   });
 
   it('serves cached data for the same query key without refetching', async () => {
-    mockSearchPeople.mockResolvedValue(successResponse);
+    mockGetPeople.mockResolvedValue(successResponse);
     const client = createCachingQueryClient();
     const wrapper = makeWrapper(client);
 
     const { result: r1 } = renderHook(() => usePeopleQuery('', 1), { wrapper });
     await waitFor(() => expect(r1.current.isSuccess).toBe(true));
-    expect(mockSearchPeople).toHaveBeenCalledTimes(1);
+    expect(mockGetPeople).toHaveBeenCalledTimes(1);
 
     const { result: r2 } = renderHook(() => usePeopleQuery('', 1), { wrapper });
     await waitFor(() => expect(r2.current.isSuccess).toBe(true));
-    expect(mockSearchPeople).toHaveBeenCalledTimes(1);
+    expect(mockGetPeople).toHaveBeenCalledTimes(1);
   });
 
   it('fetches again for a different query key', async () => {
-    mockSearchPeople.mockResolvedValue(successResponse);
+    mockGetPeople.mockResolvedValue(successResponse);
     const client = createCachingQueryClient();
     const wrapper = makeWrapper(client);
 
@@ -123,6 +124,6 @@ describe('usePeopleQuery', () => {
     });
     await waitFor(() => expect(r2.current.isSuccess).toBe(true));
 
-    expect(mockSearchPeople).toHaveBeenCalledTimes(2);
+    expect(mockGetPeople).toHaveBeenCalledTimes(2);
   });
 });
