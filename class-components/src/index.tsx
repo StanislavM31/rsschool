@@ -1,13 +1,16 @@
 import { StrictMode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { createRoot } from 'react-dom/client';
 
-import App from '@/app.tsx';
-import ErrorBoundary from '@/core/error-boundary/error-boundary.tsx';
-import { queryClient } from '@/core/query/query-client.ts';
 import { QueryClientProvider } from '@tanstack/react-query';
 
+import AppRouter from '@core/router/app-router.tsx';
+import { ThemeProvider } from '@core/theme/theme-context.tsx';
+
+import ErrorBoundary from '@/core/error-boundary/error-boundary.tsx';
+import { queryClient } from '@/core/query/query-client.ts';
+
 import './index.scss';
-import { createRoot } from 'react-dom/client';
 
 const container = document.getElementById('root');
 
@@ -20,7 +23,9 @@ createRoot(container).render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
-          <App />
+          <ThemeProvider>
+            <AppRouter />
+          </ThemeProvider>
         </ErrorBoundary>
       </QueryClientProvider>
     </BrowserRouter>
