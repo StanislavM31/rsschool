@@ -33,7 +33,7 @@ function Header(): JSX.Element {
             Forms
           </NavLink>
           <button className="theme-toggle" onClick={toggleTheme} type="button">
-            {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+            {theme === 'dark' ? '☼ Light' : '☾ Dark'}
           </button>
         </nav>
       </div>
