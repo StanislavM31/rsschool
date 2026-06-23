@@ -11,7 +11,6 @@ import SearchSection from '@widgets/search-section/search-section';
 
 import Spinner from '@shared/ui/spinner/spinner';
 
-
 interface MainPageProps {
   readonly params: Promise<{ locale: string }>;
   readonly searchParams: Promise<Record<string, string | string[] | undefined>>;

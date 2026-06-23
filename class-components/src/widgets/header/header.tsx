@@ -20,7 +20,8 @@ function Header(): JSX.Element {
   const t = useTranslations('navigation');
 
   const handleLanguageChange = (newLocale: string): void => {
-    const newPathname = pathname?.replace(`/${locale}`, `/${newLocale}`) || `/${newLocale}`;
+    const newPathname =
+      pathname?.replace(`/${locale}`, `/${newLocale}`) || `/${newLocale}`;
     router.push(newPathname);
   };
 
