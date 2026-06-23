@@ -4,7 +4,7 @@ import type { JSX } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { useSelectionStore } from '@/core/store/selection-store.ts';
 
@@ -29,6 +29,7 @@ function ResultsTableRow({
   const router = useRouter();
   const locale = useLocale();
   const searchParams = useSearchParams();
+  const t = useTranslations('results');
   const { toggleItem, isSelected } = useSelectionStore();
 
   const id = extractPersonId(person.url);
@@ -72,7 +73,7 @@ function ResultsTableRow({
       </td>
       <td className="results-table__cell">
         <div className="results-table__description">
-          {buildDescription(person)}
+          {buildDescription(person, t)}
         </div>
         <ResultsTableBadges person={person} />
       </td>
