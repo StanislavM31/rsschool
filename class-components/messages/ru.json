@@ -23,7 +23,7 @@
     "back": "Вернуться к поиску"
   },
   "search": {
-    "label": "Термин поиска",
+    "label": "Параметры поиска",
     "placeholder": "напр. Luke Skywalker…",
     "button": "ПОИСК",
     "loading": "ЗАГРУЗКА…"
