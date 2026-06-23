@@ -12,19 +12,30 @@ import type { PersonResponse } from '@entities/person/model/types/person-respons
 
 export async function getPeople(params: SearchParams): Promise<SearchResponse> {
   const { term, page } = params;
-  const data = await fetchJson<PersonResponse>(buildSearchUrl(term, page));
+  const data = await fetchJson<PersonResponse | Person[]>(
+    buildSearchUrl(term, page)
+  );
 
   if ('message' in data) return data;
 
-  const totalPages = Math.ceil((data.count ?? 0) / RESULTS_PER_PAGE);
+  const results = Array.isArray(data) ? data : (data.results ?? []);
+  const count = Array.isArray(data) ? results.length : (data.count ?? 0);
+  const totalPages = Math.max(1, Math.ceil(count / RESULTS_PER_PAGE));
+
+  const hasNextPage = Array.isArray(data)
+    ? page < totalPages
+    : Boolean(data.next) || page < totalPages;
+  const hasPreviousPage = Array.isArray(data)
+    ? page > 1
+    : Boolean(data.previous) || page > 1;
 
   return {
-    results: data.results ?? [],
-    totalCount: data.count ?? 0,
+    results,
+    totalCount: count,
     currentPage: page,
     totalPages,
-    hasNextPage: data.next !== null,
-    hasPreviousPage: data.previous !== null,
+    hasNextPage,
+    hasPreviousPage,
   };
 }
 

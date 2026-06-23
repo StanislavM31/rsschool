@@ -1,34 +1,40 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
-import reactPlugin from 'eslint-plugin-react';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+import next from '@next/eslint-plugin-next';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import tseslint from 'typescript-eslint';
-import { defineConfig, globalIgnores } from 'eslint/config';
 
-export default defineConfig([
-  globalIgnores(['dist']),
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export default tseslint.config(
+  {
+    ignores: ['dist', 'node_modules', '.next', 'next-env.d.ts'],
+  },
+
+  ...tseslint.configs.recommended,
+
   {
     files: ['**/*.{ts,tsx}'],
-    extends: [
-      js.configs.recommended,
-      tseslint.configs.recommended,
-      reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
-      reactPlugin.configs.flat.recommended,
-      reactPlugin.configs.flat['jsx-runtime'],
-      eslintConfigPrettier,
-    ],
-    languageOptions: {
-      globals: globals.browser,
-    },
+
     plugins: {
+      '@next/next': next,
       'simple-import-sort': simpleImportSort,
     },
+
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.json', './tsconfig.node.json'],
+        tsconfigRootDir: __dirname,
+      },
+    },
+
     rules: {
-      'react-hooks/set-state-in-effect': 'off',
+      ...next.configs.recommended.rules,
+      ...next.configs['core-web-vitals'].rules,
+
       'simple-import-sort/imports': [
         'error',
         {
@@ -40,6 +46,8 @@ export default defineConfig([
               '^react-dom',
               '^react-hook-form',
             ],
+            ['^next'],
+            ['^next-intl'],
             ['^@tanstack'],
             ['^@core'],
             ['^@/core'],
@@ -59,12 +67,10 @@ export default defineConfig([
           ],
         },
       ],
+
       'simple-import-sort/exports': 'error',
     },
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
   },
-]);
+
+  eslintConfigPrettier
+);
