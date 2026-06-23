@@ -33,9 +33,15 @@ function Card({ person }: CardProps): JSX.Element {
         </div>
       </div>
       <div className="card__footer">
-        <span className="card__badge">{t('hair')}: {person.hair_color}</span>
-        <span className="card__badge">{t('eyes')}: {person.eye_color}</span>
-        <span className="card__badge">{t('skin')}: {person.skin_color}</span>
+        <span className="card__badge">
+          {t('hair')}: {person.hair_color}
+        </span>
+        <span className="card__badge">
+          {t('eyes')}: {person.eye_color}
+        </span>
+        <span className="card__badge">
+          {t('skin')}: {person.skin_color}
+        </span>
       </div>
     </div>
   );

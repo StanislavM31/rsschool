@@ -13,9 +13,15 @@ function ResultsTableBadges({ person }: ResultsTableBadgesProps): JSX.Element {
 
   return (
     <div className="results-table__badges">
-      <span className="results-table__badge">{t('hair')}: {person.hair_color}</span>
-      <span className="results-table__badge">{t('eyes')}: {person.eye_color}</span>
-      <span className="results-table__badge">{t('skin')}: {person.skin_color}</span>
+      <span className="results-table__badge">
+        {t('hair')}: {person.hair_color}
+      </span>
+      <span className="results-table__badge">
+        {t('eyes')}: {person.eye_color}
+      </span>
+      <span className="results-table__badge">
+        {t('skin')}: {person.skin_color}
+      </span>
     </div>
   );
 }
