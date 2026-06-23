@@ -1,0 +1,58 @@
+{
+  "navigation": {
+    "home": "Главная страница",
+    "about": "О программе",
+    "search": "Поиск"
+  },
+  "about": {
+    "title": "О программе",
+    "application": {
+      "title": "Программа",
+      "description": "Star Wars API Search — это программа, которая даёт возможность вам изучать персонажей Звёздных войн с помощью публичного API SWAPI."
+    },
+    "course": {
+      "title": "Курс",
+      "description": "Создано для ",
+      "link": "https://rs.school/courses/reactjs"
+    },
+    "back": "← Вернуться к поиску"
+  },
+  "not-found": {
+    "title": "Страница не найдена",
+    "description": "Страница, которую вы ищете, не существует или была перемещена.",
+    "back": "Вернуться к поиску"
+  },
+  "search": {
+    "label": "Параметры поиска",
+    "placeholder": "напр. Luke Skywalker…",
+    "button": "ПОИСК",
+    "loading": "ЗАГРУЗКА…"
+  },
+  "results": {
+    "empty": "результатов нет",
+    "total": "записей",
+    "page": "Страница",
+    "of": "из",
+    "name": "Имя",
+    "description": "Описание",
+    "height": "Рост",
+    "mass": "Вес",
+    "birthYear": "Год рождения",
+    "born": "Год рождения",
+    "gender": "Пол",
+    "hair": "Волосы",
+    "eyes": "Глаза",
+    "skin": "Кожа"
+  },
+  "pagination": {
+    "itemsSelected": "элементов выбрано",
+    "download": "Скачать",
+    "unselectAll": "Снять выбор"
+  },
+  "error": {
+    "title": "Ошибка",
+    "systemFailure": "СИСТЕМНЫЙ СБОЙ",
+    "message": "Ошибка. Записано в журнал.",
+    "reset": "ПЕРЕЗАГРУЗИТЬ"
+  }
+}
